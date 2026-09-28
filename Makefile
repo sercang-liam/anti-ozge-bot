@@ -17,6 +17,6 @@ test:
 build:
 	go mod tidy
 	mkdir -p dist
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -o dist/anti-ozge-bot.exe .
-	CGO_ENABLED=0 GOOS=darwin  GOARCH=arm64 go build -ldflags "-s -w" -o dist/anti-ozge-bot-mac .
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -o dist/anti-ozge-bot.exe .
+	CGO_ENABLED=0 GOOS=darwin  GOARCH=arm64 go build -trimpath -o dist/anti-ozge-bot-mac .
 	@echo "Done: dist/anti-ozge-bot.exe (Windows) and dist/anti-ozge-bot-mac (Apple Silicon)"
