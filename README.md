@@ -1,6 +1,18 @@
-# anti-ozge-bot
+<p align="center">
+  <img src="icon.png" width="128" alt="anti-ozge-bot icon">
+</p>
 
-A WhatsApp bot that deflects Özge with smart reasoning, so you never have to.
+<h1 align="center">anti-ozge-bot</h1>
+
+<p align="center">A WhatsApp bot that deflects Özge with smart reasoning, so you never have to.</p>
+
+<p align="center">
+  <a href="https://github.com/sercang-liam/anti-ozge-bot/releases/latest/download/anti-ozge-bot.exe"><img src="assets/download-windows.svg" alt="Download for Windows" height="56"></a>
+  &nbsp;
+  <a href="https://github.com/sercang-liam/anti-ozge-bot/releases/latest/download/anti-ozge-bot-mac"><img src="assets/download-mac.svg" alt="Download for Mac" height="56"></a>
+</p>
+
+<p align="center"><sub>Both buttons always download the newest version.</sub></p>
 
 ## What it does
 
@@ -25,13 +37,25 @@ No AI, no paid APIs. Everything is scripted and runs on your machine.
 
 ## Windows (no install needed)
 
-1. Download `anti-ozge-bot.exe` from this repo's **Releases** page.
+1. Click **Download for Windows** at the top of this page.
 2. Put it in its own folder and double-click it.
 3. Enter Özge's number and language, then scan the QR code in WhatsApp → Settings → Linked devices.
 
 That's it. The program is a single file with everything built in; it stores `config.json`, `session.db` and `leads.jsonl` in the same folder. Close the window to stop it.
 
 The first time, Windows may show "Windows protected your PC" because the file isn't code-signed. Click **More info → Run anyway**.
+
+## Mac
+
+Click **Download for Mac**, then in Terminal:
+
+```bash
+cd ~/Downloads
+chmod +x anti-ozge-bot-mac
+./anti-ozge-bot-mac
+```
+
+If macOS says it can't verify the developer, open **System Settings → Privacy & Security**, scroll down and click **Open Anyway**.
 
 ## Building it yourself
 

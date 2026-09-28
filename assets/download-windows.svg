@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="64" viewBox="0 0 260 64" role="img" aria-label="Download for Windows">
+  <rect width="260" height="64" rx="14" fill="#0F2A33"/>
+  <circle cx="36" cy="32" r="18" fill="#13A08C"/>
+  <path d="M36 22v15m-6.5-6.5L36 37l6.5-6.5M28 42h16" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="66" y="27" fill="#A9C2C7" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13">Download for</text>
+  <text x="66" y="47" fill="#FFFFFF" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="21" font-weight="700">Windows</text>
+</svg>
