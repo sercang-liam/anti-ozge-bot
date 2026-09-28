@@ -11,17 +11,14 @@ import (
 const configFile = "config.json"
 
 // Config holds the bot settings, stored in config.json.
+// Older config files may still contain other settings; they are simply ignored.
 type Config struct {
-	OzgeNumber      string `json:"ozge_number"`       // digits only, with country code
-	Language        string `json:"language"`          // fallback reply language: tr or en
-	CooldownMinutes int    `json:"cooldown_minutes"`  // silence to repeat nudges after a reply
-	TakeoverMinutes int    `json:"takeover_minutes"`  // bot stays out after you reply yourself
-	MinDelaySeconds int    `json:"min_delay_seconds"` // human-like delay before replying
-	MaxDelaySeconds int    `json:"max_delay_seconds"`
+	OzgeNumber string `json:"ozge_number"` // digits only, with country code
+	Language   string `json:"language"`    // fallback reply language: tr or en
 }
 
 func defaultConfig() Config {
-	return Config{Language: "tr", CooldownMinutes: 20, TakeoverMinutes: 30, MinDelaySeconds: 25, MaxDelaySeconds: 90}
+	return Config{Language: "tr"}
 }
 
 func onlyDigits(s string) string {
@@ -46,9 +43,6 @@ func loadConfig() (Config, error) {
 	cfg.OzgeNumber = onlyDigits(cfg.OzgeNumber)
 	if cfg.OzgeNumber == "" {
 		return cfg, fmt.Errorf("ozge_number is empty")
-	}
-	if cfg.MaxDelaySeconds < cfg.MinDelaySeconds {
-		cfg.MaxDelaySeconds = cfg.MinDelaySeconds
 	}
 	return cfg, nil
 }

@@ -35,8 +35,8 @@ import (
 const (
 	leadsFile     = "leads.jsonl"
 	maxMessageAge = 10 * time.Minute // ignore old messages delivered at startup
-	leadCooldown  = 2 * time.Minute  // leads and urgent messages get answered more often
-	closerAfter   = 3                // nudges during cooldown before one closing reply
+	minReplyDelay = 2                // seconds of "typing…" before a reply, at least
+	maxReplyDelay = 5                // and at most
 )
 
 type Bot struct {
@@ -46,13 +46,9 @@ type Bot struct {
 	dryRun   bool
 	selfTest bool // treat your own "Message yourself" chat as Özge, for testing
 
-	mu          sync.Mutex
-	lastReply   time.Time
-	lastManual  time.Time
-	pending     bool
-	nudgeCount  int
-	closerSent  bool
-	sentByBot   map[types.MessageID]bool
+	mu        sync.Mutex
+	pending   bool
+	sentByBot map[types.MessageID]bool
 	received    int
 	replied     int
 	ignored     int
@@ -157,16 +153,9 @@ func (b *Bot) onMessage(v *events.Message) {
 		if own {
 			return
 		}
-		if b.selfTest && b.isSelfChat(ctx, info.Chat) {
-			// Self-test: a message you wrote to yourself is handled as if Özge sent it.
-		} else {
-			// You wrote to her yourself, so the bot steps aside for a while.
-			if b.isOzge(ctx, info.Chat, info.RecipientAlt) {
-				b.mu.Lock()
-				b.lastManual = time.Now()
-				b.mu.Unlock()
-				logf("✋ You replied yourself, the bot stays out of this chat for now.")
-			}
+		// Your own messages are ignored, except in self-test mode where
+		// a message you write to yourself is handled as if Özge sent it.
+		if !(b.selfTest && b.isSelfChat(ctx, info.Chat)) {
 			return
 		}
 	} else if !b.isOzge(ctx, info.Sender, info.SenderAlt, info.Chat) {
@@ -208,37 +197,15 @@ func (b *Bot) onMessage(v *events.Message) {
 }
 
 // decide returns the kind of reply to send, or "" with a reason to stay quiet.
+// Every message gets an answer, except while a reply to her previous message
+// is still on its way.
 func (b *Bot) decide(kind brain.Kind) (brain.Kind, string) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	now := time.Now()
-	cooldown := time.Duration(b.cfg.CooldownMinutes) * time.Minute
-	takeover := time.Duration(b.cfg.TakeoverMinutes) * time.Minute
-
-	skip := func(reason string) (brain.Kind, string) {
+	if b.pending {
 		b.ignored++
-		return "", reason
+		return "", "A reply to her previous message is already on its way."
 	}
-	switch {
-	case now.Sub(b.lastManual) < takeover:
-		return skip("You are handling this chat, no auto-reply.")
-	case b.pending:
-		return skip("A reply is already on its way.")
-	case kind == brain.Lead || kind == brain.Urgent:
-		if now.Sub(b.lastReply) < leadCooldown {
-			return skip("Answered a moment ago, staying calm.")
-		}
-	case now.Sub(b.lastReply) < cooldown:
-		b.nudgeCount++
-		if b.nudgeCount >= closerAfter && !b.closerSent {
-			b.closerSent = true
-			b.pending = true
-			return brain.Closer, ""
-		}
-		return skip("Already answered recently. Staying calm and quiet.")
-	}
-	b.nudgeCount = 0
-	b.closerSent = false
 	b.pending = true
 	return kind, ""
 }
@@ -251,14 +218,14 @@ func (b *Bot) reply(ctx context.Context, chat types.JID, kind brain.Kind, lang s
 	}()
 
 	text := b.picker.Reply(kind, lang)
-	minD, maxD := b.cfg.MinDelaySeconds, b.cfg.MaxDelaySeconds
-	time.Sleep(time.Duration(minD+rand.Intn(maxD-minD+1)) * time.Second)
+	wait := time.Duration(minReplyDelay+rand.Intn(maxReplyDelay-minReplyDelay+1)) * time.Second
 
 	if b.dryRun {
+		time.Sleep(wait)
 		logf("   ↳ [dry run] would reply: %s", text)
 	} else {
 		_ = b.client.SendChatPresence(ctx, chat, types.ChatPresenceComposing, types.ChatPresenceMediaText)
-		time.Sleep(time.Duration(2+rand.Intn(4)) * time.Second)
+		time.Sleep(wait) // shows "typing…" for 2–5 seconds
 		_ = b.client.SendChatPresence(ctx, chat, types.ChatPresencePaused, types.ChatPresenceMediaText)
 		resp, err := b.client.SendMessage(ctx, chat, &waE2E.Message{Conversation: proto.String(text)})
 		if err != nil {
@@ -272,7 +239,6 @@ func (b *Bot) reply(ctx context.Context, chat types.JID, kind brain.Kind, lang s
 	}
 
 	b.mu.Lock()
-	b.lastReply = time.Now()
 	b.replied++
 	b.mu.Unlock()
 }

@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/mdp/qrterminal/v3 v3.2.1
-	go.mau.fi/whatsmeow v0.0.0-20260928110833-d9538eeba3ac
+	go.mau.fi/whatsmeow v0.0.0-20260928140511-35f522c88ce3
 	google.golang.org/protobuf v1.36.12
 	modernc.org/sqlite v1.59.0
 )

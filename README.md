@@ -8,13 +8,14 @@ When Özge messages you, the bot steps in. It reads the message, works out the m
 
 | She sends | The bot |
 |---|---|
-| `?`, `??`, "online mısın", "orada mısın" | One calm reply, then calm silence during the cooldown |
+| `?`, `??`, "online mısın", "orada mısın" | A calm "I'm here, on it" |
 | "baktın mı", "ne oldu", "any update?" | A reassuring status reply |
 | "acil", "asap" | A calm "I'm prioritising it" |
 | A new lead or assignment | A polite acknowledgement, and the lead is saved to `leads.jsonl` |
-| Three more nudges during the cooldown | One final "I've seen everything, it's all in the queue" |
+| "günaydın", "merhaba" | A friendly greeting back |
+| Anything else, including photos and voice notes | A short "noted, thanks" |
 
-Also: it replies in her language (Turkish or English), never sends the same line twice in a row, waits a random 25–90 seconds and shows "typing…" before replying, and steps aside for 30 minutes whenever you reply to her yourself.
+Also: it replies in her language (Turkish or English), never sends the same line twice in a row, answers every message within 2–5 seconds (showing "typing…" first; several messages in a row get one reply), and keeps answering even when you write to her yourself.
 
 No AI, no paid APIs. Everything is scripted and runs on your machine.
 
@@ -56,9 +57,6 @@ On first run, scan the QR code: WhatsApp → Settings → Linked devices → Lin
 |---|---|---|
 | `ozge_number` | — | Her number with country code, digits only |
 | `language` | `tr` | Reply language when hers can't be detected |
-| `cooldown_minutes` | `20` | Calm silence to repeat nudges after a reply |
-| `takeover_minutes` | `30` | How long the bot stays out after you reply yourself |
-| `min_delay_seconds` / `max_delay_seconds` | `25` / `90` | Human-like reply delay |
 
 Replies live in `internal/brain/brain.go`; edit them to sound more like you.
 
